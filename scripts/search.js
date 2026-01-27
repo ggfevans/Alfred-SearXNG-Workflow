@@ -112,6 +112,77 @@ function shellEscape(str) {
 }
 
 /**
+ * Parse bang modifiers from query string.
+ * Extracts category bangs (!i, !images, !n, !news, !v, !videos, !maps)
+ * and time range bangs (!d, !w, !m, !y) from anywhere in the query.
+ * @param {string} query - Raw query string with potential bangs
+ * @returns {{query: string, category: string|undefined, timeRange: string|undefined}}
+ */
+function parseBangs(query) {
+	const categoryBangs = {
+		"!images": "images",
+		"!i": "images",
+		"!news": "news",
+		"!n": "news",
+		"!videos": "videos",
+		"!v": "videos",
+		"!maps": "maps",
+	};
+
+	const timeRangeBangs = {
+		"!d": "day",
+		"!w": "week",
+		"!m": "month",
+		"!y": "year",
+	};
+
+	let category;
+	let timeRange;
+	let cleanQuery = query;
+
+	// Helper to replace a bang, handling spacing correctly
+	const replaceBang = (str, regex) => {
+		return str.replace(regex, (match, before, after) => {
+			if (before === "" || before === undefined) return after === "" ? "" : "";
+			if (after === "" || after === undefined) return before;
+			return " "; // Between words: collapse to single space
+		});
+	};
+
+	// Extract category bangs (case-insensitive, word boundary)
+	// Keep replacing until no more matches (handles duplicates like "!i !i cats")
+	for (const [bang, value] of Object.entries(categoryBangs)) {
+		const regex = new RegExp(`(^|\\s)${bang}(\\s|$)`, "gi");
+		let newQuery = replaceBang(cleanQuery, regex);
+		while (newQuery !== cleanQuery) {
+			category = value;
+			cleanQuery = newQuery;
+			newQuery = replaceBang(cleanQuery, regex);
+		}
+	}
+
+	// Extract time range bangs (case-insensitive, word boundary)
+	for (const [bang, value] of Object.entries(timeRangeBangs)) {
+		const regex = new RegExp(`(^|\\s)${bang}(\\s|$)`, "gi");
+		let newQuery = replaceBang(cleanQuery, regex);
+		while (newQuery !== cleanQuery) {
+			timeRange = value;
+			cleanQuery = newQuery;
+			newQuery = replaceBang(cleanQuery, regex);
+		}
+	}
+
+	// Collapse runs of 3+ spaces to 2, then trim
+	cleanQuery = cleanQuery.replace(/\s{3,}/g, "  ").trim();
+
+	return {
+		query: cleanQuery,
+		category,
+		timeRange,
+	};
+}
+
+/**
  * Perform HTTP GET request.
  * @param {string} url - URL to fetch
  * @param {number} timeoutSecs - Timeout in seconds
