@@ -1,0 +1,31 @@
+# vim: ft=gitignore
+#───────────────────────────────────────────────────────────────────────────────
+
+# git
+.git/
+.gitignore
+.gitattributes
+
+# Alfred
+prefs.plist
+.rsync-exclude
+
+# docs (development documentation, not included in workflow)
+docs/
+LICENSE
+# INFO leading `/` -> ignore only the README in the root, not in subfolders
+/README.md
+
+# build
+Justfile
+.github/
+.build-and-release.sh
+
+# linter & types
+.editorconfig
+biome.jsonc
+*.d.ts
+jsconfig.json
+
+# other
+*.alfredworkflow
