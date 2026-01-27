@@ -35,9 +35,26 @@ function getEnv(name, defaultValue) {
 	}
 }
 
+/**
+ * Parse and validate timeout value.
+ * Returns defaultMs if value is invalid, non-positive, or NaN.
+ * Clamps to maxMs to prevent excessively long timeouts.
+ * @param {string} value - String value to parse
+ * @param {number} [defaultMs=5000] - Default timeout in milliseconds
+ * @param {number} [maxMs=30000] - Maximum allowed timeout
+ * @returns {number} Validated timeout in milliseconds
+ */
+function parseTimeout(value, defaultMs = 5000, maxMs = 30000) {
+	const parsed = Number.parseInt(value, 10);
+	if (Number.isNaN(parsed) || parsed <= 0) {
+		return defaultMs;
+	}
+	return Math.min(parsed, maxMs);
+}
+
 const CONFIG = {
 	searxngUrl: getEnv("searxng_url"),
-	timeoutMs: Number.parseInt(getEnv("timeout_ms", "5000"), 10),
+	timeoutMs: parseTimeout(getEnv("timeout_ms", "5000")),
 };
 
 // ============================================================================
