@@ -4,10 +4,6 @@ set dotenv-load := true
 # WORKFLOW_UID comes from .env file
 # Create .env from .env.example and set your workflow folder name
 
-# Alfred preferences location (handles both synced and non-synced setups)
-prefs_location := `defaults read com.runningwithcrayons.Alfred-Preferences syncfolder 2>/dev/null | sed "s|^~|$HOME|" || echo "$HOME/Library/Application Support/Alfred"`
-local_workflow := prefs_location / "Alfred.alfredpreferences/workflows" / env("WORKFLOW_UID", "")
-
 #───────────────────────────────────────────────────────────────────────────────
 
 # Sync changes FROM local Alfred workflow to this git repo
@@ -17,12 +13,18 @@ transfer-changes-FROM-local:
         echo "Error: WORKFLOW_UID not set. Copy .env.example to .env and configure it."
         exit 1
     fi
-    if [[ ! -d "{{ local_workflow }}" ]]; then
-        echo "Error: Workflow not found at {{ local_workflow }}"
+    # Determine Alfred prefs location (synced or local)
+    prefs_location=$(defaults read com.runningwithcrayons.Alfred-Preferences syncfolder 2>/dev/null | sed "s|^~|$HOME|")
+    if [[ -z "$prefs_location" ]]; then
+        prefs_location="$HOME/Library/Application Support/Alfred"
+    fi
+    local_workflow="$prefs_location/Alfred.alfredpreferences/workflows/$WORKFLOW_UID"
+    if [[ ! -d "$local_workflow" ]]; then
+        echo "Error: Workflow not found at $local_workflow"
         echo "Check WORKFLOW_UID in .env matches your Alfred workflow folder"
         exit 1
     fi
-    rsync --archive --delete --exclude-from="$PWD/.rsync-exclude" "{{ local_workflow }}/" "$PWD"
+    rsync --archive --delete --exclude-from="$PWD/.rsync-exclude" "$local_workflow/" "$PWD"
     git status --short
 
 # Sync changes TO local Alfred workflow from this git repo
@@ -32,13 +34,18 @@ transfer-changes-TO-local:
         echo "Error: WORKFLOW_UID not set. Copy .env.example to .env and configure it."
         exit 1
     fi
-    if [[ ! -d "{{ local_workflow }}" ]]; then
-        echo "Error: Workflow not found at {{ local_workflow }}"
+    prefs_location=$(defaults read com.runningwithcrayons.Alfred-Preferences syncfolder 2>/dev/null | sed "s|^~|$HOME|")
+    if [[ -z "$prefs_location" ]]; then
+        prefs_location="$HOME/Library/Application Support/Alfred"
+    fi
+    local_workflow="$prefs_location/Alfred.alfredpreferences/workflows/$WORKFLOW_UID"
+    if [[ ! -d "$local_workflow" ]]; then
+        echo "Error: Workflow not found at $local_workflow"
         echo "Check WORKFLOW_UID in .env matches your Alfred workflow folder"
         exit 1
     fi
-    rsync --archive --delete --exclude-from="$PWD/.rsync-exclude" "$PWD/" "{{ local_workflow }}"
-    echo "\e[1;34mSynced to: {{ local_workflow }}\e[0m"
+    rsync --archive --delete --exclude-from="$PWD/.rsync-exclude" "$PWD/" "$local_workflow"
+    echo "\e[1;34mSynced to: $local_workflow\e[0m"
 
 # Open workflow in Alfred Preferences for visual editing
 [macos]
@@ -53,4 +60,9 @@ release:
 
 # Show where Alfred workflow is located
 show-workflow-path:
-    @echo "{{ local_workflow }}"
+    #!/usr/bin/env zsh
+    prefs_location=$(defaults read com.runningwithcrayons.Alfred-Preferences syncfolder 2>/dev/null | sed "s|^~|$HOME|")
+    if [[ -z "$prefs_location" ]]; then
+        prefs_location="$HOME/Library/Application Support/Alfred"
+    fi
+    echo "$prefs_location/Alfred.alfredpreferences/workflows/$WORKFLOW_UID"
