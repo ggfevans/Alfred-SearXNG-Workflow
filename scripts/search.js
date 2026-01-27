@@ -166,8 +166,11 @@ function getWorkflowDataDir() {
 		// Try Alfred's environment variable first
 		dataDir = $.getenv("alfred_workflow_data");
 	} catch {
-		// Fallback: construct from bundle ID
-		const home = $.getenv("HOME");
+		// Fallback: construct from bundle ID using getEnv helper for safety
+		const home = getEnv("HOME", "");
+		if (!home) {
+			throw new Error("Cannot determine workflow data directory: HOME not set");
+		}
 		const bundleId = "com.ggfevans.alfred-searxng";
 		dataDir = `${home}/Library/Application Support/Alfred/Workflow Data/${bundleId}`;
 	}
@@ -206,13 +209,23 @@ function fileExists(path) {
 }
 
 /**
+ * Sanitize a domain name for use as a filename.
+ * Replaces any characters that could be problematic in filenames.
+ * @param {string} domain - Domain name
+ * @returns {string} Safe filename
+ */
+function sanitizeDomainForFilename(domain) {
+	return domain.replace(/[^a-zA-Z0-9.-]/g, "_");
+}
+
+/**
  * Check if a favicon is cached for the given domain.
  * @param {string} domain - Domain name (e.g., "github.com")
  * @returns {string|null} Path to cached favicon or null if not cached
  */
 function getCachedFavicon(domain) {
 	const cacheDir = getCacheDir();
-	const faviconPath = `${cacheDir}/${domain}.png`;
+	const faviconPath = `${cacheDir}/${sanitizeDomainForFilename(domain)}.png`;
 
 	if (fileExists(faviconPath)) {
 		return faviconPath;
@@ -228,7 +241,7 @@ function getCachedFavicon(domain) {
  */
 function fetchFavicon(domain) {
 	const cacheDir = getCacheDir();
-	const faviconPath = `${cacheDir}/${domain}.png`;
+	const faviconPath = `${cacheDir}/${sanitizeDomainForFilename(domain)}.png`;
 
 	// Google favicon service URL (sz=64 for higher resolution)
 	const faviconUrl = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`;
