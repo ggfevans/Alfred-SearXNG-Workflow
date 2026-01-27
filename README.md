@@ -6,6 +6,8 @@
 
 Search your personal [SearXNG](https://docs.searxng.org/) instance directly from Alfred with inline results.
 
+<img width="567" height="476" alt="Alfred interface" align="center" src="https://github.com/user-attachments/assets/d2c426bc-110f-4c19-b29b-a20e70cf7bd8" />
+
 ## Features
 
 - **Inline results** - Search results appear directly in Alfred
