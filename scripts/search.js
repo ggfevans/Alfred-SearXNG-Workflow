@@ -207,6 +207,44 @@ function parseAutocompleteResponse(responseData) {
 }
 
 /**
+ * Convert an autocomplete suggestion to an Alfred item.
+ * @param {string} suggestion - Suggestion text
+ * @param {string|null} category - Inherited category from bangs
+ * @param {string|null} timeRange - Inherited time range from bangs
+ * @returns {object} Alfred item
+ */
+function suggestionToAlfredItem(suggestion, category, timeRange) {
+	// Build contextual subtitle
+	let subtitle = "Search";
+	if (category) {
+		subtitle += ` ${category}`;
+	}
+	if (timeRange) {
+		const timeLabels = { day: "past day", month: "past month", year: "past year" };
+		subtitle += ` (${timeLabels[timeRange] || timeRange})`;
+	}
+	subtitle += " for this suggestion";
+
+	const item = {
+		title: suggestion,
+		subtitle: subtitle,
+		arg: suggestion,
+		autocomplete: suggestion,
+		valid: true,
+		icon: { path: "icon.png" },
+	};
+
+	// Pass bang context as variables for potential rerun
+	if (category || timeRange) {
+		item.variables = {};
+		if (category) item.variables.category = category;
+		if (timeRange) item.variables.timeRange = timeRange;
+	}
+
+	return item;
+}
+
+/**
  * Perform HTTP GET request.
  * @param {string} url - URL to fetch
  * @param {number} timeoutSecs - Timeout in seconds

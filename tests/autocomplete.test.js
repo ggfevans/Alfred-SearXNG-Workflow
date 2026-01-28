@@ -71,3 +71,53 @@ describe("parseAutocompleteResponse", () => {
 		});
 	});
 });
+
+// Extract suggestionToAlfredItem function
+const suggestionFn = searchJs.match(
+	/function suggestionToAlfredItem\(suggestion, category, timeRange\) \{[\s\S]*?\n\}/
+);
+if (!suggestionFn) {
+	throw new Error("Could not find suggestionToAlfredItem function in search.js");
+}
+// eslint-disable-next-line no-eval
+const suggestionToAlfredItem = eval(`(${suggestionFn[0]})`);
+
+describe("suggestionToAlfredItem", () => {
+	it("creates basic suggestion item", () => {
+		const item = suggestionToAlfredItem("climate change", null, null);
+		assert.strictEqual(item.title, "climate change");
+		assert.strictEqual(item.subtitle, "Search for this suggestion");
+		assert.strictEqual(item.arg, "climate change");
+		assert.strictEqual(item.autocomplete, "climate change");
+		assert.strictEqual(item.valid, true);
+		assert.deepStrictEqual(item.icon, { path: "icon.png" });
+	});
+
+	it("inherits category in subtitle", () => {
+		const item = suggestionToAlfredItem("mountains", "images", null);
+		assert.strictEqual(item.subtitle, "Search images for this suggestion");
+	});
+
+	it("inherits time range in subtitle", () => {
+		const item = suggestionToAlfredItem("news", null, "day");
+		assert.strictEqual(item.subtitle, "Search (past day) for this suggestion");
+	});
+
+	it("inherits both category and time range", () => {
+		const item = suggestionToAlfredItem("events", "news", "month");
+		assert.strictEqual(item.subtitle, "Search news (past month) for this suggestion");
+	});
+
+	it("includes variables for bang context", () => {
+		const item = suggestionToAlfredItem("test", "images", "month");
+		assert.deepStrictEqual(item.variables, {
+			category: "images",
+			timeRange: "month"
+		});
+	});
+
+	it("omits variables when no bang context", () => {
+		const item = suggestionToAlfredItem("test", null, null);
+		assert.strictEqual(item.variables, undefined);
+	});
+});
