@@ -892,7 +892,7 @@ function search(query) {
 				noResultsSubtitle,
 				`${searxngUrl}/search?q=${encodeURIComponent(cleanQuery)}`
 			),
-		]);
+		], 60);
 	}
 
 	// Transform results to Alfred items
