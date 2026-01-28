@@ -9,7 +9,24 @@ const { describe, it } = require("node:test");
 const fs = require("node:fs");
 const path = require("node:path");
 
-// Extract normalizeHmacOutput function from search.js
+/**
+ * Extract normalizeHmacOutput function from search.js for testing.
+ *
+ * WHY THIS APPROACH:
+ * - JXA scripts run in JavaScriptCore, not Node.js
+ * - No module system (no require/export) in JXA
+ * - Can't import functions directly into Node test environment
+ *
+ * HOW IT WORKS:
+ * - Read the source file as text
+ * - Regex extracts the function definition as a string
+ * - eval() compiles it into a callable function
+ *
+ * MAINTENANCE NOTES:
+ * - Regex matches from "function normalizeHmacOutput" to "return trimmed;"
+ * - If function structure changes significantly, update the regex
+ * - The function must remain pure (no JXA dependencies) to be testable
+ */
 const searchJs = fs.readFileSync(
 	path.join(__dirname, "../scripts/search.js"),
 	"utf-8"
