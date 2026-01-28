@@ -112,6 +112,82 @@ function shellEscape(str) {
 }
 
 /**
+ * Parse bang modifiers from query string.
+ * Extracts category bangs (!i, !images, !n, !news, !v, !videos, !maps)
+ * and time range bangs (!d, !m, !y) from anywhere in the query.
+ * @param {string} query - Raw query string with potential bangs
+ * @returns {{query: string, category: string|undefined, timeRange: string|undefined}}
+ */
+function parseBangs(query) {
+	const categoryBangs = {
+		"!images": "images",
+		"!i": "images",
+		"!news": "news",
+		"!n": "news",
+		"!videos": "videos",
+		"!v": "videos",
+		"!maps": "maps",
+	};
+
+	// SearXNG only supports: day, month, year (not week)
+	const timeRangeBangs = {
+		"!d": "day",
+		"!m": "month",
+		"!y": "year",
+	};
+
+	let category;
+	let timeRange;
+	let cleanQuery = query;
+
+	// Helper to replace a bang, handling spacing correctly.
+	// The regex captures: (before)(bang)(after) where before/after are whitespace or boundaries.
+	// Three cases with intentionally asymmetric returns:
+	// 1. Bang at start (before is empty): remove bang entirely, no leading space needed
+	// 2. Bang at end (after is empty): preserve the leading space from 'before'
+	// 3. Bang between words: collapse to single space to avoid double-spacing
+	const replaceBang = (str, regex) => {
+		return str.replace(regex, (match, before, after) => {
+			if (before === "" || before === undefined) return ""; // Case 1: bang at start
+			if (after === "" || after === undefined) return before; // Case 2: bang at end
+			return " "; // Case 3: bang between words
+		});
+	};
+
+	// Extract category bangs (case-insensitive, word boundary)
+	// Keep replacing until no more matches (handles duplicates like "!i !i cats")
+	for (const [bang, value] of Object.entries(categoryBangs)) {
+		const regex = new RegExp(`(^|\\s)${bang}(\\s|$)`, "gi");
+		let newQuery = replaceBang(cleanQuery, regex);
+		while (newQuery !== cleanQuery) {
+			category = value;
+			cleanQuery = newQuery;
+			newQuery = replaceBang(cleanQuery, regex);
+		}
+	}
+
+	// Extract time range bangs (case-insensitive, word boundary)
+	for (const [bang, value] of Object.entries(timeRangeBangs)) {
+		const regex = new RegExp(`(^|\\s)${bang}(\\s|$)`, "gi");
+		let newQuery = replaceBang(cleanQuery, regex);
+		while (newQuery !== cleanQuery) {
+			timeRange = value;
+			cleanQuery = newQuery;
+			newQuery = replaceBang(cleanQuery, regex);
+		}
+	}
+
+	// Collapse runs of 3+ spaces to 2, then trim
+	cleanQuery = cleanQuery.replace(/\s{3,}/g, "  ").trim();
+
+	return {
+		query: cleanQuery,
+		category,
+		timeRange,
+	};
+}
+
+/**
  * Perform HTTP GET request.
  * @param {string} url - URL to fetch
  * @param {number} timeoutSecs - Timeout in seconds
@@ -358,6 +434,24 @@ function getFaviconPath(domain, searxngUrl, secretKey) {
 // ============================================================================
 
 /**
+ * Format active filters for display in subtitle.
+ * @param {string|null} category - Active category filter
+ * @param {string|null} timeRange - Active time range filter
+ * @returns {string} Formatted filter string or empty string
+ */
+function formatFilterSubtitle(category, timeRange) {
+	const parts = [];
+	if (category) {
+		parts.push(category.charAt(0).toUpperCase() + category.slice(1));
+	}
+	if (timeRange) {
+		const timeLabels = { day: "Past day", month: "Past month", year: "Past year" };
+		parts.push(timeLabels[timeRange] || timeRange);
+	}
+	return parts.join(" · ");
+}
+
+/**
  * Create an error item for Alfred display.
  * @param {string} title - Error title
  * @param {string} subtitle - Error description
@@ -386,13 +480,23 @@ function errorItem(title, subtitle, arg) {
  * Create the fallback "search in browser" item.
  * @param {string} query - Search query
  * @param {string} searxngUrl - SearXNG base URL
+ * @param {string|null} category - Active category filter
+ * @param {string|null} timeRange - Active time range filter
  * @returns {object} Alfred item
  */
-function fallbackItem(query, searxngUrl) {
-	const searchUrl = `${searxngUrl}/search?q=${encodeURIComponent(query)}`;
+function fallbackItem(query, searxngUrl, category, timeRange) {
+	let searchUrl = `${searxngUrl}/search?q=${encodeURIComponent(query)}`;
+	if (category) {
+		searchUrl += `&categories=${encodeURIComponent(category)}`;
+	}
+	if (timeRange) {
+		searchUrl += `&time_range=${encodeURIComponent(timeRange)}`;
+	}
+	const filterInfo = formatFilterSubtitle(category, timeRange);
+	const subtitle = filterInfo ? `Open SearXNG web interface · ${filterInfo}` : "Open SearXNG web interface";
 	return {
 		title: `Search "${query}" in browser`,
-		subtitle: "Open SearXNG web interface",
+		subtitle: subtitle,
 		arg: searchUrl,
 		icon: { path: "icon.png" },
 	};
@@ -404,13 +508,30 @@ function fallbackItem(query, searxngUrl) {
  * @param {string} query - Original search query
  * @param {string} searxngUrl - SearXNG base URL
  * @param {string} secretKey - SearXNG server secret key (for favicons)
+ * @param {string|null} category - Active category filter
+ * @param {string|null} timeRange - Active time range filter
  * @returns {object} Alfred item
  */
-function resultToAlfredItem(result, query, searxngUrl, secretKey) {
+function resultToAlfredItem(result, query, searxngUrl, secretKey, category, timeRange) {
 	const domain = extractDomain(result.url);
 	const snippet = truncate(result.content || "", 80);
-	const subtitle = snippet ? `${domain} · ${snippet}` : domain;
-	const searchUrl = `${searxngUrl}/search?q=${encodeURIComponent(query)}`;
+	const filterInfo = formatFilterSubtitle(category, timeRange);
+	const subtitleParts = [domain];
+	if (filterInfo) {
+		subtitleParts.push(filterInfo);
+	}
+	if (snippet) {
+		subtitleParts.push(snippet);
+	}
+	const subtitle = subtitleParts.join(" · ");
+
+	let searchUrl = `${searxngUrl}/search?q=${encodeURIComponent(query)}`;
+	if (category) {
+		searchUrl += `&categories=${encodeURIComponent(category)}`;
+	}
+	if (timeRange) {
+		searchUrl += `&time_range=${encodeURIComponent(timeRange)}`;
+	}
 
 	// Get favicon for this domain (requires secret_key for SearXNG proxy)
 	const iconPath = getFaviconPath(domain, searxngUrl, secretKey);
@@ -478,8 +599,31 @@ function search(query) {
 		};
 	}
 
-	query = query.trim();
-	const searchUrl = `${searxngUrl}/search?q=${encodeURIComponent(query)}&format=json`;
+	// Parse bangs from query
+	const parsed = parseBangs(query.trim());
+	const cleanQuery = parsed.query;
+
+	// Guard: Empty query after bang extraction
+	if (!cleanQuery) {
+		return {
+			items: [
+				{
+					title: "Search SearXNG...",
+					subtitle: formatFilterSubtitle(parsed.category, parsed.timeRange) || "Type a query to search",
+					valid: false,
+				},
+			],
+		};
+	}
+
+	// Build search URL with optional category and time_range
+	let searchUrl = `${searxngUrl}/search?q=${encodeURIComponent(cleanQuery)}&format=json`;
+	if (parsed.category) {
+		searchUrl += `&categories=${encodeURIComponent(parsed.category)}`;
+	}
+	if (parsed.timeRange) {
+		searchUrl += `&time_range=${encodeURIComponent(parsed.timeRange)}`;
+	}
 	const timeoutSecs = Math.ceil(timeoutMs / 1000);
 
 	// Perform HTTP request
@@ -494,7 +638,7 @@ function search(query) {
 					"Check your connection",
 					searxngUrl
 				),
-				fallbackItem(query, searxngUrl),
+				fallbackItem(cleanQuery, searxngUrl, parsed.category, parsed.timeRange),
 			],
 		};
 	}
@@ -506,9 +650,9 @@ function search(query) {
 				errorItem(
 					"⏱️ Empty response",
 					"SearXNG returned no data",
-					`${searxngUrl}/search?q=${encodeURIComponent(query)}`
+					`${searxngUrl}/search?q=${encodeURIComponent(cleanQuery)}`
 				),
-				fallbackItem(query, searxngUrl),
+				fallbackItem(cleanQuery, searxngUrl, parsed.category, parsed.timeRange),
 			],
 		};
 	}
@@ -527,7 +671,7 @@ function search(query) {
 						"Enable json format in SearXNG settings.yml",
 						"https://docs.searxng.org/admin/settings/settings_search.html#settings-search"
 					),
-					fallbackItem(query, searxngUrl),
+					fallbackItem(cleanQuery, searxngUrl, parsed.category, parsed.timeRange),
 				],
 			};
 		}
@@ -538,7 +682,7 @@ function search(query) {
 					"Check if JSON format is enabled",
 					searxngUrl
 				),
-				fallbackItem(query, searxngUrl),
+				fallbackItem(cleanQuery, searxngUrl, parsed.category, parsed.timeRange),
 			],
 		};
 	}
@@ -548,19 +692,23 @@ function search(query) {
 		return {
 			items: [
 				errorItem("❌ API Error", data.error, searxngUrl),
-				fallbackItem(query, searxngUrl),
+				fallbackItem(cleanQuery, searxngUrl, parsed.category, parsed.timeRange),
 			],
 		};
 	}
 
 	// Guard: No results
 	if (!data.results || data.results.length === 0) {
+		const filterInfo = formatFilterSubtitle(parsed.category, parsed.timeRange);
+		const noResultsSubtitle = filterInfo
+			? `Try different keywords · ${filterInfo}`
+			: "Try different keywords";
 		return {
 			items: [
 				errorItem(
 					"🔍 No results found",
-					"Try different keywords",
-					`${searxngUrl}/search?q=${encodeURIComponent(query)}`
+					noResultsSubtitle,
+					`${searxngUrl}/search?q=${encodeURIComponent(cleanQuery)}`
 				),
 			],
 		};
@@ -568,11 +716,11 @@ function search(query) {
 
 	// Transform results to Alfred items
 	const items = data.results.map((result) =>
-		resultToAlfredItem(result, query, searxngUrl, secretKey)
+		resultToAlfredItem(result, cleanQuery, searxngUrl, secretKey, parsed.category, parsed.timeRange)
 	);
 
 	// Add fallback item at the end
-	items.push(fallbackItem(query, searxngUrl));
+	items.push(fallbackItem(cleanQuery, searxngUrl, parsed.category, parsed.timeRange));
 
 	return {
 		items: items,
