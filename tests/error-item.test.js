@@ -22,10 +22,10 @@ const searchJs = fs.readFileSync(
 	"utf-8"
 );
 
-// Extract getEnv function (needed by errorItem for version info)
-const getEnvMatch = searchJs.match(
-	/function getEnv\(name, defaultValue\) \{[\s\S]*?return defaultValue[\s\S]*?\}\s*\}/
-);
+// Verify getEnv function exists in search.js (presence check only).
+// We don't eval the extracted code - we use a test-local mock below instead,
+// since JXA's $.getenv is not available in Node.js test environment.
+const getEnvMatch = searchJs.match(/function getEnv\(/);
 if (!getEnvMatch) {
 	throw new Error("Could not find getEnv function in search.js");
 }

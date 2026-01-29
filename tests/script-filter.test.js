@@ -17,7 +17,7 @@ const searchJs = fs.readFileSync(
 
 // Extract errorItem - needed by scriptFilter
 const errorItemMatch = searchJs.match(
-	/function errorItem\(title, subtitle, arg(?:, (?:text|details))?\) \{[\s\S]*?return item;\s*\}/
+	/function errorItem\(title, subtitle, arg(?:, details)?\) \{[\s\S]*?return item;\s*\}/
 );
 if (!errorItemMatch) {
 	throw new Error("Could not find errorItem function in search.js");
