@@ -971,8 +971,9 @@ function scriptFilter(handler) {
 			console.log(`Error: ${message}`);
 			console.log(stack);
 			// Reuse errorItem helper for consistent structure (includes mods)
-			const item = errorItem("Internal Error", message);
-			// Add text property for copy/largetype with stack trace
+			const item = errorItem("Internal Error", message, null, { stack: stack });
+			// Override text property for copy/largetype with raw stack trace
+			// (more useful than formatted debug info for internal errors)
 			item.text = {
 				copy: stack,
 				largetype: stack,
