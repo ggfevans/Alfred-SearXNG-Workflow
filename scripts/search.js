@@ -352,7 +352,7 @@ function getWorkflowDataDir() {
 		if (!home) {
 			throw new Error("Cannot determine workflow data directory: HOME not set");
 		}
-		const bundleId = "com.ggfevans.alfred-searxng";
+		const bundleId = "ca.gvns.seek";
 		dataDir = `${home}/Library/Application Support/Alfred/Workflow Data/${bundleId}`;
 	}
 
