@@ -1,7 +1,7 @@
 #!/usr/bin/env osascript -l JavaScript
 
-// Alfred SearXNG Workflow - Main Script Filter
-// Searches a personal SearXNG instance and displays results in Alfred
+// Seek - SearXNG Search for Alfred
+// Private web search via your SearXNG instance
 
 // ============================================================================
 // IMPORTS AND INITIALIZATION

@@ -14,11 +14,11 @@ All feature work MUST use git worktrees for isolation:
 
 ```bash
 # Create worktree for issue work
-git worktree add .worktree/Alfred-SearXNG-Workflow-issue-<N> -b <type>/<N>-<description>
+git worktree add .worktree/Seek-issue-<N> -b <type>/<N>-<description>
 
 # Examples:
-git worktree add .worktree/Alfred-SearXNG-Workflow-issue-16 -b feat/16-testing-infrastructure
-git worktree add .worktree/Alfred-SearXNG-Workflow-issue-2 -b fix/2-shell-injection
+git worktree add .worktree/Seek-issue-16 -b feat/16-testing-infrastructure
+git worktree add .worktree/Seek-issue-2 -b fix/2-shell-injection
 ```
 
 Branch naming: `<type>/<issue-number>-<short-description>`
