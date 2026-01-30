@@ -1,8 +1,8 @@
-# Alfred SearXNG Workflow
+# Seek: Alfred Workflow for SearXNG
 
-[![GitHub Downloads](https://img.shields.io/github/downloads/ggfevans/Alfred-SearXNG-Workflow/total?style=flat-square&logo=github)](https://github.com/ggfevans/Alfred-SearXNG-Workflow/releases)
-[![Latest Release](https://img.shields.io/github/v/release/ggfevans/Alfred-SearXNG-Workflow?style=flat-square)](https://github.com/ggfevans/Alfred-SearXNG-Workflow/releases/latest)
-[![License](https://img.shields.io/github/license/ggfevans/Alfred-SearXNG-Workflow?style=flat-square)](LICENSE)
+[![GitHub Downloads](https://img.shields.io/github/downloads/ggfevans/Seek/total?style=flat-square&logo=github)](https://github.com/ggfevans/Seek/releases)
+[![Latest Release](https://img.shields.io/github/v/release/ggfevans/Seek?style=flat-square)](https://github.com/ggfevans/Seek/releases/latest)
+[![License](https://img.shields.io/github/license/ggfevans/Seek?style=flat-square)](LICENSE)
 
 Search your personal [SearXNG](https://docs.searxng.org/) instance directly from Alfred with inline results.
 
@@ -17,13 +17,13 @@ Search your personal [SearXNG](https://docs.searxng.org/) instance directly from
 
 ## Installation
 
-1. Download the latest `.alfredworkflow` from [Releases](https://github.com/ggfevans/Alfred-SearXNG-Workflow/releases/latest)
+1. Download the latest `.alfredworkflow` from [Releases](https://github.com/ggfevans/Seek/releases/latest)
 2. Double-click to install in Alfred
 3. Configure your SearXNG URL in the workflow settings
 
 ## Usage
 
-Type `sx` followed by your search query:
+Type `sx` or `seek` followed by your search query:
 
 | Key | Action |
 |-----|--------|
@@ -38,14 +38,14 @@ You can replace Google as your fallback search:
 
 1. Open Alfred Preferences → Features → Default Results
 2. Click "Setup fallback results" at the bottom
-3. Click + and add "Search SearXNG"
+3. Click + and add "Seek"
 4. Drag it above Google (or remove Google)
 
 Now typing anything and pressing Enter searches SearXNG.
 
 ## Configuration
 
-Configure in Alfred Preferences → Workflows → SearXNG → Configure Workflow:
+Configure in Alfred Preferences → Workflows → Seek → Configure Workflow:
 
 | Setting | Required | Description |
 |---------|----------|-------------|

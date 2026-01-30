@@ -1,7 +1,7 @@
 #!/usr/bin/env osascript -l JavaScript
 
-// Alfred SearXNG Workflow - Main Script Filter
-// Searches a personal SearXNG instance and displays results in Alfred
+// Seek - SearXNG Search for Alfred
+// Private web search via your SearXNG instance
 
 // ============================================================================
 // IMPORTS AND INITIALIZATION
@@ -352,7 +352,7 @@ function getWorkflowDataDir() {
 		if (!home) {
 			throw new Error("Cannot determine workflow data directory: HOME not set");
 		}
-		const bundleId = "com.ggfevans.alfred-searxng";
+		const bundleId = "ca.gvns.seek.alfred";
 		dataDir = `${home}/Library/Application Support/Alfred/Workflow Data/${bundleId}`;
 	}
 

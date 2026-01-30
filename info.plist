@@ -3,11 +3,34 @@
 <plist version="1.0">
 <dict>
 	<key>bundleid</key>
-	<string>com.ggfevans.alfred-searxng</string>
+	<string>ca.gvns.seek.alfred</string>
 	<key>category</key>
 	<string>Internet</string>
 	<key>connections</key>
 	<dict>
+		<key>C8E9F0A1-2B3C-4D5E-6F7A-8B9C0D1E2F3A</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>110802D2-8EA0-42A2-9E3F-EF61E70504E7</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitowards</key>
+				<string></string>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>110802D2-8EA0-42A2-9E3F-EF61E70504E7</string>
+				<key>modifiers</key>
+				<integer>524288</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitowards</key>
+				<string></string>
+			</dict>
+		</array>
 		<key>A7087C90-0C31-4269-983C-868379879BA7</key>
 		<array>
 			<dict>
@@ -48,11 +71,11 @@
 	<key>createdby</key>
 	<string>ggfevans</string>
 	<key>description</key>
-	<string>Search your personal SearXNG instance</string>
+	<string>SearXNG search for Alfred — private web search with inline results</string>
 	<key>disabled</key>
 	<false/>
 	<key>name</key>
-	<string>Alfred-SearXNG-Workflow</string>
+	<string>Seek</string>
 	<key>objects</key>
 	<array>
 		<dict>
@@ -81,7 +104,7 @@
 				<key>queuemode</key>
 				<integer>1</integer>
 				<key>runningsubtext</key>
-				<string>Searching SearXNG...</string>
+				<string>Seeking...</string>
 				<key>script</key>
 				<string></string>
 				<key>scriptargtype</key>
@@ -89,9 +112,9 @@
 				<key>scriptfile</key>
 				<string>scripts/search.js</string>
 				<key>subtext</key>
-				<string>Search your SearXNG instance</string>
+				<string>Private web search via SearXNG</string>
 				<key>title</key>
-				<string>SearXNG Search</string>
+				<string>Seek</string>
 				<key>type</key>
 				<integer>8</integer>
 				<key>withspace</key>
@@ -101,6 +124,55 @@
 			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
 			<string>A7087C90-0C31-4269-983C-868379879BA7</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>alfredfiltersresults</key>
+				<false/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>2</integer>
+				<key>argumenttreatemptyqueryasnil</key>
+				<false/>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>keyword</key>
+				<string>seek</string>
+				<key>queuedelaycustom</key>
+				<integer>3</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<true/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string>Seeking...</string>
+				<key>script</key>
+				<string></string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string>scripts/search.js</string>
+				<key>subtext</key>
+				<string>Private web search via SearXNG</string>
+				<key>title</key>
+				<string>Seek</string>
+				<key>type</key>
+				<integer>8</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>C8E9F0A1-2B3C-4D5E-6F7A-8B9C0D1E2F3A</string>
 			<key>version</key>
 			<integer>3</integer>
 		</dict>
@@ -125,7 +197,7 @@
 			<key>config</key>
 			<dict>
 				<key>text</key>
-				<string>Search SearXNG</string>
+				<string>Seek</string>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.trigger.fallback</string>
@@ -153,7 +225,7 @@
 		</dict>
 	</array>
 	<key>readme</key>
-	<string>Search your personal SearXNG instance directly from Alfred.
+	<string>**Seek** — Private web search via your SearXNG instance.
 
 ## Setup
 
@@ -184,14 +256,14 @@ To use SearXNG as your default fallback search (instead of Google):
 
 1. Open Alfred Preferences → Features → Default Results
 2. Click "Setup fallback results" at the bottom
-3. Click + and find "Search SearXNG" under this workflow
+3. Click + and find "Seek" under this workflow
 4. Drag it to the top of the list (or remove Google)
 
 Now when you type anything and press Enter, it searches SearXNG!
 
 ## Usage
 
-- Type `sx` followed by your search query (shows results in Alfred)
+- Type `sx` or `seek` followed by your search query (shows results in Alfred)
 - Or use as fallback search (opens SearXNG in browser)
 - Press Enter to open the result in your browser
 - Press ⌘C to copy the URL
@@ -238,6 +310,13 @@ Now when you type anything and press Enter, it searches SearXNG!
 			<real>50</real>
 			<key>ypos</key>
 			<real>170</real>
+		</dict>
+		<key>C8E9F0A1-2B3C-4D5E-6F7A-8B9C0D1E2F3A</key>
+		<dict>
+			<key>xpos</key>
+			<real>50</real>
+			<key>ypos</key>
+			<real>290</real>
 		</dict>
 	</dict>
 	<key>userconfigurationconfig</key>
@@ -307,8 +386,8 @@ Now when you type anything and press Enter, it searches SearXNG!
 		</dict>
 	</array>
 	<key>version</key>
-	<string>0.1.0</string>
+	<string>0.2.0</string>
 	<key>webaddress</key>
-	<string>https://github.com/ggfevans/Alfred-SearXNG-Workflow</string>
+	<string>https://github.com/ggfevans/Seek</string>
 </dict>
 </plist>
