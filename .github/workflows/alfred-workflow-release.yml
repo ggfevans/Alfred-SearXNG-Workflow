@@ -5,7 +5,7 @@ on:
     tags: ["v*"]
 
 env:
-  WORKFLOW_NAME: Seek
+  WORKFLOW_NAME: ca.gvns.seek.alfred
 
 #───────────────────────────────────────────────────────────────────────────────
 
