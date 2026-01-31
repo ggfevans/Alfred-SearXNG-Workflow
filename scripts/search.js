@@ -671,7 +671,7 @@ function exactQueryItem(query, searxngUrl, category, timeRange) {
 	}
 	const filterInfo = formatFilterSubtitle(category, timeRange);
 	return {
-		title: `Search for "${query}"`,
+		title: `Seek "${query}"`,
 		subtitle: filterInfo || "Search SearXNG",
 		arg: searchUrl,
 		icon: { path: "icon.png" },

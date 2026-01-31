@@ -160,7 +160,7 @@ const exactQueryItem = eval(`(${exactQueryFn[0]})`);
 describe("exactQueryItem", () => {
 	it("creates item with exact query in title", () => {
 		const item = exactQueryItem("test query", MOCK_SEARXNG_URL, null, null);
-		assert.strictEqual(item.title, 'Search for "test query"');
+		assert.strictEqual(item.title, 'Seek "test query"');
 	});
 
 	it("includes search URL as arg", () => {
