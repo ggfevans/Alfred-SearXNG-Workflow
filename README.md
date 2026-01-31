@@ -89,6 +89,36 @@ Seek works with any SearXNG instance that has JSON format enabled — including 
 
 For full features and privacy, self-hosting is recommended.
 
+## Security
+
+### About the Secret Key
+
+The `secret_key` is used for HMAC authentication with SearXNG's favicon proxy. It only enables proxy access for fetching favicons — it does **not** grant admin access or expose search history.
+
+### Where It's Stored
+
+The secret key is stored in Alfred's workflow configuration:
+
+```
+~/Library/Application Support/Alfred/Alfred.alfredpreferences/workflows/
+```
+
+This location is:
+- Protected by macOS file permissions (user-only readable)
+- Included in Alfred Sync if enabled (Dropbox/iCloud)
+- Included in Time Machine and other backups
+
+### Risk Assessment
+
+**Low sensitivity**: The worst-case scenario if someone obtains your secret key is that they could use your SearXNG instance's favicon proxy. They cannot access your searches, modify settings, or gain admin access.
+
+### Recommendations
+
+For privacy-conscious users:
+- **Option 1**: Leave the secret key blank to disable favicons entirely
+- **Option 2**: Exclude Alfred preferences from sync services
+- **Option 3**: Use a dedicated SearXNG instance for this workflow
+
 ## Requirements
 
 - macOS with [Alfred 5+](https://www.alfredapp.com/) and Powerpack
