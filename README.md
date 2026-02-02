@@ -23,7 +23,7 @@ An [Alfred](https://www.alfredapp.com/) workflow for private web search via [Sea
 
 ## Usage
 
-Type `sx` or `seek` followed by your search query (keywords configurable in settings):
+Search the web privately via the `sx` keyword. Alternative keyword `seek` also available (both configurable in settings):
 
 | Key | Action |
 |-----|--------|
