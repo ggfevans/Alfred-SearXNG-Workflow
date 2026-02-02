@@ -42,6 +42,13 @@ describe("parseAutocompleteResponse", () => {
 			const result = parseAutocompleteResponse(data);
 			assert.deepStrictEqual(result, ["testing"]);
 		});
+
+		it("limits to 5 suggestions for performance", () => {
+			const data = '["test", ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]]';
+			const result = parseAutocompleteResponse(data);
+			assert.strictEqual(result.length, 5);
+			assert.deepStrictEqual(result, ["one", "two", "three", "four", "five"]);
+		});
 	});
 
 	describe("invalid responses", () => {
